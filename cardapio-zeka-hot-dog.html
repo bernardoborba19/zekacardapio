@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121212">
+<title>ZEKA HOT DOG | Cardápio Digital</title>
+<meta name="description" content="Cardápio digital do ZEKA HOT DOG - Ponte do Imaruim, Palhoça/SC. Monte seu pedido e envie pelo WhatsApp.">
+<style>
+  /* =====================================================
+     1. VARIÁVEIS DE TEMA
+     ===================================================== */
+  :root {
+    --bg: #121212;
+    --surface: #1C1C1E;
+    --surface-2: #26262A;
+    --border: #34343A;
+    --text: #F5F5F5;
+    --muted: #A1A1AA;
+    --red: #E63946;
+    --orange: #FF7A1A;
+    --yellow: #FFC21A;
+    --green: #22C55E;
+    --radius: 14px;
+    --grad: linear-gradient(135deg, var(--red), var(--orange));
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+    padding-bottom: 110px; /* espaço para a barra flutuante */
+  }
+
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; border: 0; background: none; }
+  .hidden { display: none !important; }
+
+  .wrap { width: 100%; max-width: 720px; margin: 0 auto; padding: 0 16px; }
+
+  /* =====================================================
+     2. CABEÇALHO
+     ===================================================== */
+  .hero {
+    background:
+      radial-gradient(circle at 85% 0%, rgba(255,122,26,.28), transparent 55%),
+      radial-gradient(circle at 0% 100%, rgba(230,57,70,.22), transparent 50%),
+      var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 26px 0 20px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-icon {
+    width: 50px; height: 50px; border-radius: 14px;
+    background: var(--grad);
+    display: grid; place-items: center;
+    font-size: 26px; flex: none;
+  }
+  .brand h1 {
+    font-size: 26px; font-weight: 900; letter-spacing: 1px; line-height: 1.1;
+    background: linear-gradient(90deg, var(--yellow), var(--orange));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .brand small { color: var(--muted); font-size: 12px; }
+
+  .info { margin-top: 14px; display: grid; gap: 6px; font-size: 13.5px; color: var(--muted); }
+  .info span b { color: var(--text); font-weight: 600; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    margin-top: 14px; padding: 6px 12px; border-radius: 999px;
+    background: rgba(34,197,94,.14); color: var(--green);
+    border: 1px solid rgba(34,197,94,.4);
+    font-size: 13px; font-weight: 700;
+  }
+  .badge::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 0 0 rgba(34,197,94,.7);
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse {
+    70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+    100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+  }
+
+  /* =====================================================
+     3. BUSCA + NAVEGAÇÃO DE CATEGORIAS (fixas no topo)
+     ===================================================== */
+  .sticky {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(18,18,18,.94);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0 10px;
+  }
+  .search { position: relative; }
+  .search input {
+    width: 100%; padding: 12px 14px 12px 42px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 12px; outline: none;
+  }
+  .search input:focus { border-color: var(--orange); }
+  .search::before {
+    content: "🔍"; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%); font-size: 15px;
+  }
+  .chips { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none; padding: 7px 14px; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    font-size: 13px; font-weight: 600; color: var(--muted);
+  }
+  .chip.active { background: var(--grad); color: #fff; border-color: transparent; }
+
+  /* =====================================================
+     4. LISTA DE PRODUTOS
+     ===================================================== */
+  .category { margin-top: 26px; scroll-margin-top: 130px; }
+  .category h2 { font-size: 19px; font-weight: 800; color: var(--yellow); }
+  .cat-note {
+    margin-top: 8px; padding: 10px 12px; font-size: 13px; color: var(--muted);
+    background: rgba(255,194,26,.08); border-left: 3px solid var(--yellow);
+    border-radius: 6px;
+  }
+  .products { margin-top: 12px; display: grid; gap: 10px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px;
+    display: flex; gap: 12px; align-items: center;
+    width: 100%; text-align: left;
+    transition: border-color .15s, transform .1s;
+  }
+  .card:hover { border-color: var(--orange); }
+  .card:active { transform: scale(.99); }
+  .card-body { flex: 1; min-width: 0; }
+  .card h3 { font-size: 16px; font-weight: 700; }
+  .card p { margin-top: 4px; font-size: 13px; color: var(--muted); }
+  .price { margin-top: 8px; font-weight: 800; color: var(--orange); font-size: 16px; }
+  .add-btn {
+    flex: none; width: 40px; height: 40px; border-radius: 12px;
+    background: var(--grad); color: #fff; font-size: 24px; font-weight: 700;
+    display: grid; place-items: center;
+  }
+  .empty { margin-top: 30px; text-align: center; color: var(--muted); }
+
+  footer { margin-top: 36px; text-align: center; font-size: 12px; color: var(--muted); padding-bottom: 10px; }
+
+  /* =====================================================
+     5. BARRA FLUTUANTE DO CARRINHO
+     ===================================================== */
+  .cart-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
+    pointer-events: none;
+  }
+  .cart-bar button {
+    pointer-events: auto;
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; max-width: 720px; margin: 0 auto;
+    padding: 15px 18px; border-radius: 14px;
+    background: var(--grad); color: #fff; font-weight: 800; font-size: 15px;
+    box-shadow: 0 8px 24px rgba(230,57,70,.35);
+  }
+  .cart-bar .count {
+    background: rgba(0,0,0,.28); border-radius: 999px; padding: 2px 10px; font-size: 13px;
+  }
+
+  /* =====================================================
+     6. MODAIS (detalhe do item e carrinho)
+     ===================================================== */
+  .overlay {
+    position: fixed; inset: 0; z-index: 40;
+    background: rgba(0,0,0,.65);
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .sheet {
+    width: 100%; max-width: 720px; max-height: 92vh; overflow-y: auto;
+    background: var(--surface); border-radius: 20px 20px 0 0;
+    border: 1px solid var(--border); border-bottom: 0;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    animation: up .22s ease-out;
+  }
+  @keyframes up { from { transform: translateY(40px); opacity: 0; } }
+  @media (min-width: 720px) {
+    .overlay { align-items: center; }
+    .sheet { border-radius: 20px; border-bottom: 1px solid var(--border); }
+  }
+
+  .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .sheet-head h2 { font-size: 20px; }
+  .close {
+    flex: none; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--surface-2); font-size: 18px; color: var(--muted);
+  }
+  .sheet .desc { margin-top: 6px; font-size: 13.5px; color: var(--muted); }
+
+  .block-title { margin: 18px 0 8px; font-size: 13px; font-weight: 800; color: var(--yellow); text-transform: uppercase; letter-spacing: .6px; }
+
+  .addon {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 11px 12px; margin-bottom: 8px; cursor: pointer;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+  }
+  .addon label { display: flex; align-items: center; gap: 10px; flex: 1; cursor: pointer; }
+  .addon input { width: 20px; height: 20px; accent-color: var(--orange); }
+  .addon span.p { color: var(--orange); font-weight: 700; font-size: 14px; }
+
+  textarea, .field input, .field select {
+    width: 100%; padding: 12px; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 10px; outline: none;
+  }
+  textarea { resize: vertical; min-height: 70px; }
+  textarea:focus, .field input:focus, .field select:focus { border-color: var(--orange); }
+
+  .qty { display: inline-flex; align-items: center; gap: 4px; background: var(--surface-2); border-radius: 10px; border: 1px solid var(--border); }
+  .qty button { width: 36px; height: 36px; font-size: 20px; font-weight: 700; color: var(--orange); }
+  .qty b { min-width: 24px; text-align: center; }
+
+  .primary {
+    width: 100%; margin-top: 18px; padding: 15px; border-radius: 12px;
+    background: var(--grad); color: #fff; font-weight: 800; font-size: 15px;
+  }
+  .primary.wa { background: #25D366; color: #06240f; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .link { color: var(--muted); font-size: 13px; text-decoration: underline; }
+
+  /* ---------- itens do carrinho ---------- */
+  .line { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .line:last-child { border-bottom: 0; }
+  .line h4 { font-size: 15px; }
+  .line .sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .line .note { color: var(--yellow); }
+  .line .row { margin-top: 8px; }
+  .line .lp { font-weight: 800; color: var(--orange); }
+  .total-box { margin-top: 12px; padding: 12px; background: var(--surface-2); border-radius: 10px; }
+  .total-box .row b:last-child { color: var(--orange); font-size: 18px; }
+  .total-box small { color: var(--muted); display: block; margin-top: 4px; }
+
+  /* ---------- formulário ---------- */
+  .field { margin-bottom: 12px; }
+  .field > label { display: block; font-size: 13px; margin-bottom: 5px; color: var(--muted); font-weight: 600; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label {
+    display: block; text-align: center; padding: 11px 8px; border-radius: 10px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted);
+  }
+  .seg input:checked + label { border-color: var(--orange); color: var(--text); background: rgba(255,122,26,.14); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .error { color: #ff6b6b; font-size: 12.5px; margin-top: 4px; }
+  .invalid { border-color: #ff6b6b !important; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 100px; transform: translateX(-50%); z-index: 60;
+    background: var(--surface-2); border: 1px solid var(--border);
+    padding: 10px 16px; border-radius: 999px; font-size: 13px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.5);
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================= CABEÇALHO ======================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-icon" aria-hidden="true">🌭</div>
+      <div>
+        <h1>ZEKA HOT DOG</h1>
+        <small>Zeca Dog</small>
+      </div>
+    </div>
+    <div class="info">
+      <span>📍 <b>Avenida Aniceto Zacchi, 200 (Trailer)</b> – Ponte do Imaruim, Palhoça - SC</span>
+      <span>🕢 Abre diariamente às <b>19:15</b> &nbsp;•&nbsp; ⏱️ Tempo estimado: <b>30 - 50 min</b></span>
+    </div>
+    <div class="badge">Aberto para Pedidos</div>
+  </div>
+</header>
+
+<!-- ======================= BUSCA + CATEGORIAS ======================= -->
+<div class="sticky">
+  <div class="wrap">
+    <div class="search">
+      <input id="search" type="search" placeholder="Buscar lanche ou bebida..." autocomplete="off" aria-label="Buscar no cardápio">
+    </div>
+    <nav class="chips" id="chips" aria-label="Categorias"></nav>
+  </div>
+</div>
+
+<!-- ======================= CARDÁPIO ======================= -->
+<main class="wrap" id="menu"></main>
+
+<footer>ZEKA HOT DOG • Ponte do Imaruim, Palhoça - SC</footer>
+
+<!-- ======================= BARRA FLUTUANTE ======================= -->
+<div class="cart-bar hidden" id="cartBar">
+  <button type="button" id="openCart">
+    <span>🛒 Ver carrinho <span class="count" id="barCount">0</span></span>
+    <span id="barTotal">R$ 0,00</span>
+  </button>
+</div>
+
+<!-- ======================= MODAL: DETALHE DO ITEM ======================= -->
+<div class="overlay hidden" id="itemOverlay">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="itemTitle">
+    <div class="sheet-head">
+      <h2 id="itemTitle"></h2>
+      <button class="close" type="button" data-close="itemOverlay" aria-label="Fechar">✕</button>
+    </div>
+    <p class="desc" id="itemDesc"></p>
+
+    <div id="addonsBlock">
+      <div class="block-title">Adicionais</div>
+      <div id="addonsList"></div>
+    </div>
+
+    <div class="block-title">Observações</div>
+    <textarea id="itemNote" maxlength="200" placeholder="Ex.: Sem cebola, sem mostarda..."></textarea>
+
+    <div class="row" style="margin-top:16px">
+      <span style="color:var(--muted);font-size:13px">Quantidade</span>
+      <div class="qty">
+        <button type="button" id="itemMinus" aria-label="Diminuir">−</button>
+        <b id="itemQty">1</b>
+        <button type="button" id="itemPlus" aria-label="Aumentar">+</button>
+      </div>
+    </div>
+    <button class="primary" type="button" id="itemAdd">Adicionar</button>
+  </div>
+</div>
+
+<!-- ======================= MODAL: CARRINHO + CHECKOUT ======================= -->
+<div class="overlay hidden" id="cartOverlay">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+    <div class="sheet-head">
+      <h2 id="cartTitle">Seu pedido</h2>
+      <button class="close" type="button" data-close="cartOverlay" aria-label="Fechar">✕</button>
+    </div>
+
+    <div id="cartLines"></div>
+
+    <div class="total-box">
+      <div class="row"><b>Total</b><b id="cartTotal">R$ 0,00</b></div>
+      <small id="feeNote">Taxa de entrega (se houver) será combinada pelo WhatsApp.</small>
+    </div>
+
+    <form id="checkout" novalidate>
+      <div class="block-title">Seus dados</div>
+
+      <div class="field">
+        <label for="name">Nome do cliente *</label>
+        <input id="name" type="text" autocomplete="name" placeholder="Seu nome">
+        <div class="error hidden" id="err-name">Informe seu nome.</div>
+      </div>
+
+      <div class="field">
+        <label>Tipo de pedido *</label>
+        <div class="seg">
+          <input type="radio" name="type" id="t-delivery" value="delivery" checked>
+          <label for="t-delivery">🛵 Entrega (Delivery)</label>
+          <input type="radio" name="type" id="t-pickup" value="pickup">
+          <label for="t-pickup">🏪 Retirada no Trailer</label>
+        </div>
+        <small id="pickupNote" class="hidden" style="color:var(--muted);display:block;margin-top:6px">
+          Retirada: Avenida Aniceto Zacchi, 200 (Trailer) – Ponte do Imaruim.
+        </small>
+      </div>
+
+      <div id="addressBlock">
+        <div class="grid-2">
+          <div class="field">
+            <label for="street">Rua *</label>
+            <input id="street" type="text" autocomplete="address-line1" placeholder="Rua / Avenida">
+          </div>
+          <div class="field">
+            <label for="number">Número *</label>
+            <input id="number" type="text" inputmode="numeric" placeholder="Nº">
+          </div>
+        </div>
+        <div class="field">
+          <label for="district">Bairro *</label>
+          <input id="district" type="text" placeholder="Bairro">
+        </div>
+        <div class="field">
+          <label for="ref">Ponto de referência</label>
+          <input id="ref" type="text" placeholder="Ex.: Próximo ao mercado">
+        </div>
+        <div class="error hidden" id="err-address">Preencha rua, número e bairro para a entrega.</div>
+      </div>
+
+      <div class="field">
+        <label for="pay">Forma de pagamento *</label>
+        <select id="pay">
+          <option value="">Selecione...</option>
+          <option value="Pix">Pix</option>
+          <option value="Cartão de Crédito/Débito">Cartão de Crédito/Débito</option>
+          <option value="Dinheiro">Dinheiro</option>
+        </select>
+        <div class="error hidden" id="err-pay">Escolha a forma de pagamento.</div>
+      </div>
+
+      <div class="field hidden" id="changeBlock">
+        <label for="change">Troco para quanto? (opcional)</label>
+        <input id="change" type="text" inputmode="decimal" placeholder="Ex.: 50 (deixe vazio se não precisa)">
+        <div class="error hidden" id="err-change">O valor do troco deve ser maior que o total do pedido.</div>
+      </div>
+
+      <div class="field">
+        <label for="general">Observações gerais</label>
+        <textarea id="general" maxlength="300" placeholder="Algum recado para a gente?"></textarea>
+      </div>
+
+      <button class="primary wa" type="submit">Enviar Pedido no WhatsApp</button>
+      <div class="row" style="margin-top:12px;justify-content:center">
+        <button type="button" class="link" id="clearCart">Esvaziar carrinho</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast" role="status"></div>
+
+<script>
+/* =====================================================
+   CONFIGURAÇÕES (EDITE AQUI)
+   ===================================================== */
+
+// Número do WhatsApp do estabelecimento: 55 + DDD + número, só dígitos.
+// Exemplo: 5548999999999  → TROQUE PELO NÚMERO REAL ANTES DE PUBLICAR.
+const WHATSAPP_NUMBER = "55XXXXXXXXXXX";
+
+// Adicionais disponíveis (os preços abaixo são EXEMPLOS: ajuste conforme o trailer).
+const ADDONS = [
+  { id: "salsicha", name: "Salsicha extra", price: 3.00 },
+  { id: "bacon",    name: "Bacon",          price: 4.00 },
+  { id: "queijo",   name: "Queijo extra",   price: 3.00 },
+  { id: "calabresa",name: "Calabresa extra",price: 4.00 },
+  { id: "frango",   name: "Frango extra",   price: 4.00 }
+];
+
+// Cardápio. "addons: true" habilita os adicionais no produto.
+const MENU = [
+  {
+    id: "tradicional",
+    name: "Dog Tradicional",
+    items: [
+      { id: "dog-trad", name: "Dog Tradicional", price: 15.00, addons: true,
+        desc: "2 salsichas, molho cozido, queijo, bacon, batata palha, milho, ervilha, cebola, tomate, maionese, ketchup e mostarda." }
+    ]
+  },
+  {
+    id: "prensados",
+    name: "Dogs Prensados",
+    note: "Todos os lanches prensados acompanham queijo, bacon, batata palha, milho, ervilha, cebola, tomate, maionese, ketchup e mostarda.",
+    items: [
+      { id: "p-sal-fra", name: "Dog Salsicha + Frango",    price: 20.00, addons: true, desc: "Salsicha + frango, prensado." },
+      { id: "p-car-cal", name: "Dog Carne + Calabresa",    price: 23.00, addons: true, desc: "Carne + calabresa, prensado." },
+      { id: "p-fra-cal", name: "Dog Frango + Calabresa",   price: 23.00, addons: true, desc: "Frango + calabresa, prensado." },
+      { id: "p-cor-cal", name: "Dog Coração + Calabresa",  price: 23.00, addons: true, desc: "Coração + calabresa, prensado." },
+      { id: "p-car-fra", name: "Dog Carne + Frango",       price: 23.00, addons: true, desc: "Carne + frango, prensado." },
+      { id: "p-cor-fra", name: "Dog Coração + Frango",     price: 23.00, addons: true, desc: "Coração + frango, prensado." }
+    ]
+  },
+  {
+    id: "bebidas",
+    name: "Bebidas & Acompanhamentos",
+    items: [
+      { id: "refri", name: "Refrigerante Lata (350ml)", price: 6.00, addons: false, desc: "Lata 350ml." },
+      { id: "agua",  name: "Água Mineral (500ml)",      price: 4.00, addons: false, desc: "Garrafa 500ml." }
+    ]
+  }
+];
+
+/* =====================================================
+   UTILITÁRIOS
+   ===================================================== */
+const $ = (sel, root = document) => root.querySelector(sel);
+const money = n => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const STORAGE_KEY = "zeka-hotdog-cart-v1";
+
+// Escapa texto digitado pelo cliente antes de inserir no HTML.
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
+// Remove acentos e caixa para a busca.
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.remove("hidden");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.add("hidden"), 1800);
+}
+
+/* =====================================================
+   ESTADO DO CARRINHO
+   Cada linha: { key, productId, name, unit, qty, addons:[ids], note }
+   ===================================================== */
+let cart = [];
+
+function loadCart() {
+  try { cart = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch (e) { cart = []; }
+  // Descarta linhas de produtos que não existem mais no cardápio.
+  cart = cart.filter(l => findProduct(l.productId));
+}
+function saveCart() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); } catch (e) { /* ignora */ }
+}
+
+function findProduct(id) {
+  for (const c of MENU) for (const p of c.items) if (p.id === id) return p;
+  return null;
+}
+
+const cartCount = () => cart.reduce((s, l) => s + l.qty, 0);
+const cartTotal = () => cart.reduce((s, l) => s + l.unit * l.qty, 0);
+
+/* =====================================================
+   RENDERIZAÇÃO DO CARDÁPIO + BUSCA
+   ===================================================== */
+function renderMenu(filter = "") {
+  const q = norm(filter.trim());
+  const menu = $("#menu");
+  let html = "";
+  let found = 0;
+
+  for (const cat of MENU) {
+    const items = cat.items.filter(p => !q || norm(p.name + " " + p.desc).includes(q));
+    if (!items.length) continue;
+    found += items.length;
+
+    html += `<section class="category" id="cat-${cat.id}">
+      <h2>${esc(cat.name)}</h2>
+      ${cat.note ? `<div class="cat-note">${esc(cat.note)}</div>` : ""}
+      <div class="products">
+        ${items.map(p => `
+          <button type="button" class="card" data-id="${p.id}">
+            <div class="card-body">
+              <h3>${esc(p.name)}</h3>
+              <p>${esc(p.desc)}</p>
+              <div class="price">${money(p.price)}</div>
+            </div>
+            <span class="add-btn" aria-hidden="true">+</span>
+          </button>`).join("")}
+      </div>
+    </section>`;
+  }
+
+  menu.innerHTML = found ? html : `<p class="empty">Nenhum item encontrado para “${esc(filter)}”.</p>`;
+}
+
+function renderChips() {
+  $("#chips").innerHTML = MENU.map((c, i) =>
+    `<button type="button" class="chip ${i === 0 ? "active" : ""}" data-cat="${c.id}">${esc(c.name)}</button>`
+  ).join("");
+}
+
+$("#chips").addEventListener("click", e => {
+  const chip = e.target.closest(".chip");
+  if (!chip) return;
+  $("#search").value = "";
+  renderMenu();
+  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c === chip));
+  const target = document.getElementById("cat-" + chip.dataset.cat);
+  if (target) target.scrollIntoView({ behavior: "smooth" });
+});
+
+$("#search").addEventListener("input", e => renderMenu(e.target.value));
+
+/* =====================================================
+   MODAL DE ITEM (adicionais, observação, quantidade)
+   ===================================================== */
+let current = null; // { product, qty }
+
+function openOverlay(id) { $("#" + id).classList.remove("hidden"); document.body.style.overflow = "hidden"; }
+function closeOverlay(id) {
+  $("#" + id).classList.add("hidden");
+  if (document.querySelectorAll(".overlay:not(.hidden)").length === 0) document.body.style.overflow = "";
+}
+
+document.addEventListener("click", e => {
+  const closeBtn = e.target.closest("[data-close]");
+  if (closeBtn) closeOverlay(closeBtn.dataset.close);
+  // clique no fundo escuro fecha o modal
+  if (e.target.classList && e.target.classList.contains("overlay")) closeOverlay(e.target.id);
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") document.querySelectorAll(".overlay:not(.hidden)").forEach(o => closeOverlay(o.id));
+});
+
+$("#menu").addEventListener("click", e => {
+  const card = e.target.closest(".card");
+  if (!card) return;
+  openItem(findProduct(card.dataset.id));
+});
+
+function openItem(product) {
+  current = { product, qty: 1 };
+  $("#itemTitle").textContent = product.name;
+  $("#itemDesc").textContent = product.desc;
+  $("#itemNote").value = "";
+  $("#itemQty").textContent = "1";
+
+  const hasAddons = product.addons;
+  $("#addonsBlock").classList.toggle("hidden", !hasAddons);
+  $("#addonsList").innerHTML = hasAddons ? ADDONS.map(a => `
+    <div class="addon">
+      <label><input type="checkbox" value="${a.id}"> ${esc(a.name)}</label>
+      <span class="p">+ ${money(a.price)}</span>
+    </div>`).join("") : "";
+
+  updateItemTotal();
+  openOverlay("itemOverlay");
+}
+
+function selectedAddons() {
+  return [...document.querySelectorAll("#addonsList input:checked")].map(i => i.value);
+}
+function unitPrice(product, addonIds) {
+  return product.price + addonIds.reduce((s, id) => s + (ADDONS.find(a => a.id === id)?.price || 0), 0);
+}
+function updateItemTotal() {
+  const unit = unitPrice(current.product, selectedAddons());
+  $("#itemAdd").textContent = `Adicionar • ${money(unit * current.qty)}`;
+}
+
+$("#addonsList").addEventListener("change", updateItemTotal);
+$("#itemPlus").addEventListener("click", () => { current.qty = Math.min(current.qty + 1, 20); $("#itemQty").textContent = current.qty; updateItemTotal(); });
+$("#itemMinus").addEventListener("click", () => { current.qty = Math.max(current.qty - 1, 1); $("#itemQty").textContent = current.qty; updateItemTotal(); });
+
+$("#itemAdd").addEventListener("click", () => {
+  const addonIds = selectedAddons().sort();
+  const note = $("#itemNote").value.trim();
+  const key = [current.product.id, addonIds.join("+"), note.toLowerCase()].join("|");
+
+  const existing = cart.find(l => l.key === key);
+  if (existing) {
+    existing.qty = Math.min(existing.qty + current.qty, 50);
+  } else {
+    cart.push({
+      key, productId: current.product.id, name: current.product.name,
+      unit: unitPrice(current.product, addonIds), qty: current.qty, addons: addonIds, note
+    });
+  }
+  saveCart(); updateBar();
+  closeOverlay("itemOverlay");
+  toast("Adicionado ao carrinho ✔");
+});
+
+/* =====================================================
+   BARRA FLUTUANTE + CARRINHO
+   ===================================================== */
+function updateBar() {
+  const n = cartCount();
+  $("#cartBar").classList.toggle("hidden", n === 0);
+  $("#barCount").textContent = n + (n === 1 ? " item" : " itens");
+  $("#barTotal").textContent = money(cartTotal());
+}
+
+function renderCart() {
+  const box = $("#cartLines");
+  if (!cart.length) {
+    box.innerHTML = `<p class="empty" style="margin:20px 0">Seu carrinho está vazio.</p>`;
+  } else {
+    box.innerHTML = cart.map((l, i) => {
+      const addonNames = l.addons.map(id => ADDONS.find(a => a.id === id)?.name).filter(Boolean);
+      return `<div class="line">
+        <h4>${esc(l.name)}</h4>
+        ${addonNames.length ? `<div class="sub">+ ${esc(addonNames.join(", "))}</div>` : ""}
+        ${l.note ? `<div class="sub note">Obs.: ${esc(l.note)}</div>` : ""}
+        <div class="row">
+          <div class="qty">
+            <button type="button" data-act="minus" data-i="${i}" aria-label="Diminuir">−</button>
+            <b>${l.qty}</b>
+            <button type="button" data-act="plus" data-i="${i}" aria-label="Aumentar">+</button>
+          </div>
+          <span class="lp">${money(l.unit * l.qty)}</span>
+        </div>
+      </div>`;
+    }).join("");
+  }
+  $("#cartTotal").textContent = money(cartTotal());
+}
+
+$("#cartLines").addEventListener("click", e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  const i = +b.dataset.i;
+  if (b.dataset.act === "plus") cart[i].qty = Math.min(cart[i].qty + 1, 50);
+  else { cart[i].qty -= 1; if (cart[i].qty <= 0) cart.splice(i, 1); }
+  saveCart(); updateBar(); renderCart();
+  if (!cart.length) closeOverlay("cartOverlay");
+});
+
+$("#openCart").addEventListener("click", () => { renderCart(); openOverlay("cartOverlay"); });
+
+$("#clearCart").addEventListener("click", () => {
+  if (!confirm("Esvaziar o carrinho?")) return;
+  cart = []; saveCart(); updateBar(); closeOverlay("cartOverlay");
+});
+
+/* =====================================================
+   CHECKOUT: campos dinâmicos
+   ===================================================== */
+const isDelivery = () => $("input[name=type]:checked").value === "delivery";
+
+function syncType() {
+  $("#addressBlock").classList.toggle("hidden", !isDelivery());
+  $("#pickupNote").classList.toggle("hidden", isDelivery());
+}
+document.querySelectorAll("input[name=type]").forEach(r => r.addEventListener("change", syncType));
+
+$("#pay").addEventListener("change", () => {
+  $("#changeBlock").classList.toggle("hidden", $("#pay").value !== "Dinheiro");
+});
+
+/* =====================================================
+   VALIDAÇÃO + MONTAGEM DA MENSAGEM DO WHATSAPP
+   ===================================================== */
+function flag(inputId, errId, bad) {
+  $("#" + inputId)?.classList.toggle("invalid", bad);
+  if (errId) $("#" + errId).classList.toggle("hidden", !bad);
+  return bad;
+}
+
+function parseMoney(str) {
+  const n = parseFloat(String(str).replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", "."));
+  return isNaN(n) ? null : n;
+}
+
+$("#checkout").addEventListener("submit", e => {
+  e.preventDefault();
+  if (!cart.length) { toast("Adicione itens ao carrinho."); return; }
+
+  const name = $("#name").value.trim();
+  const pay = $("#pay").value;
+  const street = $("#street").value.trim();
+  const number = $("#number").value.trim();
+  const district = $("#district").value.trim();
+  const ref = $("#ref").value.trim();
+  const general = $("#general").value.trim();
+  const delivery = isDelivery();
+  const total = cartTotal();
+
+  // Validações
+  let bad = false;
+  bad = flag("name", "err-name", !name) || bad;
+  bad = flag("pay", "err-pay", !pay) || bad;
+  if (delivery) {
+    const addrBad = !street || !number || !district;
+    ["street", "number", "district"].forEach(id => $("#" + id).classList.toggle("invalid", addrBad && !$("#" + id).value.trim()));
+    $("#err-address").classList.toggle("hidden", !addrBad);
+    bad = addrBad || bad;
+  }
+  let change = null;
+  if (pay === "Dinheiro" && $("#change").value.trim()) {
+    change = parseMoney($("#change").value);
+    bad = flag("change", "err-change", change === null || change <= total) || bad;
+  }
+  if (bad) { toast("Confira os campos destacados."); return; }
+
+  // Monta a mensagem (usa \n; encodeURIComponent converte para %0A)
+  const lines = [];
+  lines.push("🌭 *NOVO PEDIDO - ZEKA HOT DOG*");
+  lines.push("");
+  lines.push(`👤 *Cliente:* ${name}`);
+  lines.push(`📦 *Tipo:* ${delivery ? "Entrega (Delivery)" : "Retirada no Trailer (Ponte do Imaruim)"}`);
+  if (delivery) {
+    lines.push(`📍 *Endereço:* ${street}, ${number} - ${district}`);
+    if (ref) lines.push(`🧭 *Referência:* ${ref}`);
+  }
+  lines.push("");
+  lines.push("🧾 *ITENS DO PEDIDO*");
+  cart.forEach(l => {
+    lines.push(`${l.qty}x ${l.name} - ${money(l.unit * l.qty)}`);
+    const addonNames = l.addons.map(id => ADDONS.find(a => a.id === id)?.name).filter(Boolean);
+    if (addonNames.length) lines.push(`   + ${addonNames.join(", ")}`);
+    if (l.note) lines.push(`   Obs.: ${l.note}`);
+  });
+  lines.push("");
+  lines.push(`💰 *Total:* ${money(total)}${delivery ? " (sem taxa de entrega)" : ""}`);
+  lines.push(`💳 *Pagamento:* ${pay}`);
+  if (pay === "Dinheiro") {
+    lines.push(change ? `💵 *Troco para:* ${money(change)}` : "💵 *Troco:* não precisa");
+  }
+  if (general) { lines.push(""); lines.push(`📝 *Observações:* ${general}`); }
+
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+
+  if (/X/.test(WHATSAPP_NUMBER)) {
+    alert("Atenção: o número do WhatsApp ainda não foi configurado no código (constante WHATSAPP_NUMBER).");
+    return;
+  }
+  window.open(url, "_blank", "noopener");
+});
+
+/* =====================================================
+   INICIALIZAÇÃO
+   ===================================================== */
+loadCart();
+renderChips();
+renderMenu();
+updateBar();
+syncType();
+</script>
+</body>
+</html>
